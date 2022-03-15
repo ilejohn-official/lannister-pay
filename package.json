@@ -1,4 +1,24 @@
 {
+  "name": "lannister-pay",
+  "description": "fee processing service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilejohn-official/lannister-pay.git"
+  },
+  "keywords": [
+    "payment"
+  ],
+  "author": "Opeyemi Ilesanmi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ilejohn-official/lannister-pay/issues"
+  },
+  "homepage": "https://github.com/ilejohn-official/lannister-pay#readme",
   "dependencies": {
     "body-parser": "^1.19.2",
     "cross-env": "^7.0.3",
@@ -7,5 +27,6 @@
     "jest": "^27.5.1",
     "nodemon": "^2.0.15",
     "supertest": "^6.2.2"
-  }
+  },
+  "devDependencies": {}
 }
