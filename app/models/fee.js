@@ -10,7 +10,7 @@ let feeSchema = new Schema({
   entity: { type: String },
   entityProperty: { type: String, default: null },
   type: { type: String,},
-  value: { type: String, },
+  value: { type: Object, default: { flatValue: 0, percentageValue: 0 } },
   deletedAt: {type: Date, default: null, required: false},
 },
 {

@@ -1,9 +1,12 @@
+const storeFeeConfiguration = require('../services/store_fee_configuration');
 
 module.exports = {
   storeFeeConfiguration: async (request, response) => {
-    
+    const feeConfig = request.body.FeeConfigurationSpec;
+
     try {
-      
+     await storeFeeConfiguration(feeConfig);
+
      response.status(200).json({
       status: "ok",
      });
