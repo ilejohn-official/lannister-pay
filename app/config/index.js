@@ -8,3 +8,4 @@ module.exports = {
   appKey: process.env.APP_KEY,
   appUrl: process.env.APP_URL,
 };
+//process.env.APP_ENV === 'test' ? process.env.DB_URL_TEST : 

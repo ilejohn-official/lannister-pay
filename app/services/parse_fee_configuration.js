@@ -3,7 +3,6 @@ module.exports = (feeConfig) => {
 
     return filteredByLineBreak.map(configLine => {
         let configElementsArray = configLine.split(" ").filter(config => config);
-//to improve on validation that entity follows pattern
 
         let feeId = configElementsArray[0],
         currency = configElementsArray[1],

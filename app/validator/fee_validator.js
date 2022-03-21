@@ -1,4 +1,6 @@
-module.exports = (request, response, next) => {
+const Fee = require("../models/fee");
+
+module.exports = async (request, response, next) => {
     const feeConfig = request.body.FeeConfigurationSpec;
 
     if (!feeConfig) {
@@ -13,19 +15,19 @@ module.exports = (request, response, next) => {
 
     if(filteredByLineBreak.length < 1) {
      return response.status(422)
-      .json({status: 'error', message: 'Invalid Fee configuration specs. Must contain fee specifications in right format'});
+      .json({status: 'error', message: 'Invalid Fee configuration specs. No configuration specified'});
     }
 
-    let id = [];
+    let ids = [];
 
-    filteredByLineBreak.forEach(eachConfigLine => {
+    for(let eachConfigLine of filteredByLineBreak){
         let filteredBySpace = eachConfigLine.split(" ").filter(config => config);
         
         if (filteredBySpace.length !== 8 
             || filteredBySpace[4] !== ':'
             || filteredBySpace[5] !== 'APPLY' 
-            || filteredBySpace[1] !== 'NGN'
-            || /[A-Z-]|\*\([A-Z-]|\*\)/.test(filteredBySpace[3])
+            || !['NGN', '*'].includes(filteredBySpace[1])
+            || !/^[A-Z*\-]+\([A-Z*\-]+\)$/.test(filteredBySpace[3])
             || !/LNPY/.test(filteredBySpace[0])
             || !['LOCL', 'INTL', '*'].includes(filteredBySpace[2])
             || !['PERC', 'FLAT', 'FLAT_PERC'].includes(filteredBySpace[6])
@@ -37,16 +39,23 @@ module.exports = (request, response, next) => {
                 )
             || (['PERC', 'FLAT'].includes(filteredBySpace[6]) && isNaN(filteredBySpace[7]))
             ) {
-            return response.status(422)
-            .json({status: 'error', message: 'Invalid Fee configuration specs. Must contain fee specifications in right format'}); 
+           return response.status(422)
+            .json({status: 'error', message: 'Invalid Fee configuration specs. Must contain fee specifications in right format'});
         }
 
-        id.push(filteredBySpace[0]);
-    });
+        ids.push(filteredBySpace[0]);
+    }
 
-    if ((new Set(id)).length !== id.length) {
+    if ([...new Set(ids)].length !== ids.length) {
         return response.status(422)
             .json({status: 'error', message: 'Invalid Fee configuration specs. Id must be unique'}); 
+    }
+
+    const IdExist = await Fee.exists({feeId : {$in : ids}});
+
+    if (IdExist) {
+        return response.status(422)
+        .json({status: 'error', message: 'fee id already created, cannot duplicate'}); 
     }
 
     return next();

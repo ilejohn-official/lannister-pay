@@ -1,11 +1,12 @@
-const storeFeeConfiguration = require('../services/store_fee_configuration');
+const storeFeeConfigurationService = require('../services/store_fee_configuration');
+const computeTransactionService = require('../services/compute_transaction_fee');
 
 module.exports = {
   storeFeeConfiguration: async (request, response) => {
     const feeConfig = request.body.FeeConfigurationSpec;
 
     try {
-     await storeFeeConfiguration(feeConfig);
+     await storeFeeConfigurationService(feeConfig);
 
      response.status(200).json({
       status: "ok",
@@ -17,15 +18,15 @@ module.exports = {
   },
 
   computeTransactionFee: async (request, response) => {
-    
+    const amount = request.body.Amount;
+    const currencyCountry = request.body.CurrencyCountry;
+    const customer = request.body.Customer;
+    const paymentEntity = request.body.PaymentEntity;
+
     try {
-      
-     response.status(200).json({
-       AppliedFeeID: "LNPY0222",
-       AppliedFeeValue: 230,
-       ChargeAmount: 5230,
-       SettlementAmount: 5000
-     });
+      const data = await computeTransactionService(amount, currencyCountry, customer, paymentEntity);
+
+     response.status(200).json(data);
        
     } catch (error) {
       response.status(400).json({status: 'error', message: error.message});

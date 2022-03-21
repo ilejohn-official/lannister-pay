@@ -5,7 +5,13 @@ module.exports = async (unparsedFeeConfig) => {
     try {
      const parsedFee = parseFeeConfig(unparsedFeeConfig);
 
-     return Fee.insertMany(parsedFee);
+     Fee.insertMany(parsedFee, function(error, docs) {
+         if (error) {
+           throw error
+         }
+
+         return docs;
+     });
     } catch (error) {
         throw error
     } 
