@@ -1,10 +1,10 @@
 module.exports = (feeConfig) => {
     let filteredByLineBreak = feeConfig.split(/\r?\n/).filter(config => config);
 
-    filteredByLineBreak.forEach(configLine => {
+    return filteredByLineBreak.map(configLine => {
         let configElementsArray = configLine.split(" ").filter(config => config);
-//to validate that the entity is not null
-//to validate that the index 4 and 5 are : and APPLY
+//to improve on validation that entity follows pattern
+
         let feeId = configElementsArray[0],
         currency = configElementsArray[1],
         locale = configElementsArray[2],
@@ -12,7 +12,7 @@ module.exports = (feeConfig) => {
         entityProperty = configElementsArray[3].match(/\(([^)]+)\)/)[1],
         type = configElementsArray[6],
         value = {};
-//to validate if fee type and fee value are appropriately specified
+
         if (type === 'PERC') {
             value = { flatValue: 0, percentageValue: Number(configElementsArray[7]) }
         }
