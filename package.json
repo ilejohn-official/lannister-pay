@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start" : "node index.js",
     "serve": "nodemon index.js",
     "test": "cross-env APP_ENV=test jest --testTimeout=10000 --detectOpenHandles --forceExit"
   },
