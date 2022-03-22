@@ -1,32 +1,24 @@
 const request = require("supertest");
-const mongoose = require("mongoose");
 const app = require("../../app");
 const { appName } = require("../config");
+const mongoose = require("mongoose");
 const Fee = require("../models/fee");
 
-// remove all records
-// afterEach(async () => {
-//   await Fee.deleteMany();
-// });
-// afterAll(async () => {
-//   await Fee.deleteMany();
-//   mongoose.disconnect()
-// });
+let server;
 
-// let server;
-
-// beforeAll( (done) => {
-//   mongoose.connect('mongodb://localhost:27017/lan-test');
-//   server = app.listen(4000, () => {
-//     global.agent = request.agent(server);
-//     done();
-//   });
-// });
+beforeAll( (done) => {
+  mongoose.connect('mongodb://localhost:27017/lan-test');
+  server = app.listen(4000, () => {
+    global.agent = request.agent(server);
+    done();
+  });
+});
 
 afterAll(async () => {
     await new Promise(resolve => setTimeout(() => resolve(), 500));
-//   await server.close();
-//   await mongoose.disconnect();
+    await server.close();
+    await Fee.deleteMany();
+    await mongoose.disconnect();
 });
 
 describe("Test root and undefined paths", () => {
@@ -62,6 +54,43 @@ describe("Test POST /fees route", () => {
             const response = await request(app).post("/fees").send(feeConfig);
             expect(response.statusCode).toBe(200);
             expect(response.body.status).toBe("ok");
+        } catch (error) {
+            throw error
+        }
+    });    
+});
+
+describe("Test POST /compute-transaction-fee route", () => {
+    test("fee computation", async () => {
+        const transactionPayload = {
+                "ID": 91203,
+                "Amount": 5000,
+                "Currency": "NGN",
+                "CurrencyCountry": "NG",
+                "Customer": {
+                    "ID": 2211232,
+                    "EmailAddress": "anonimized29900@anon.io",
+                    "FullName": "Abel Eden",
+                    "BearsFee": true
+                },
+                "PaymentEntity": {
+                    "ID": 2203454,
+                    "Issuer": "GTBANK",
+                    "Brand": "MASTERCARD",
+                    "Number": "530191******2903",
+                    "SixID": 530191,
+                    "Type": "CREDIT-CARD",
+                    "Country": "NG"
+                }
+        };
+
+        try {
+            const response = await request(app).post("/compute-transaction-fee").send(transactionPayload);
+            expect(response.statusCode).toBe(200);
+            expect(response.body.AppliedFeeID).toBe("LNPY1223");
+            expect(response.body.AppliedFeeValue).toBe(120);
+            expect(response.body.ChargeAmount).toBe(5120);
+            expect(response.body.SettlementAmount).toBe(5000);
         } catch (error) {
             throw error
         }
