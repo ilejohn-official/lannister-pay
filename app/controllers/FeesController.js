@@ -13,23 +13,24 @@ module.exports = {
      });
        
     } catch (error) {
-      response.status(400).json({status: 'error', message: error.message});
+      response.status(400).json({Error: error.message});
     }
   },
 
   computeTransactionFee: async (request, response) => {
+    const currency = request.body.Currency;
     const amount = request.body.Amount;
     const currencyCountry = request.body.CurrencyCountry;
     const customer = request.body.Customer;
     const paymentEntity = request.body.PaymentEntity;
 
     try {
-      const data = await computeTransactionService(amount, currencyCountry, customer, paymentEntity);
+      const data = await computeTransactionService(currency, amount, currencyCountry, customer, paymentEntity);
 
      response.status(200).json(data);
        
     } catch (error) {
-      response.status(400).json({status: 'error', message: error.message});
+      response.status(400).json({Error: error.message});
     }
   },
 }

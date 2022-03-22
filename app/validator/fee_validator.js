@@ -27,7 +27,7 @@ module.exports = async (request, response, next) => {
             || filteredBySpace[4] !== ':'
             || filteredBySpace[5] !== 'APPLY' 
             || !['NGN', '*'].includes(filteredBySpace[1])
-            || !/^[A-Z*\-]+\([A-Z*\-]+\)$/.test(filteredBySpace[3])
+            || !/^[A-Z*\-]+\([A-Z*\-0-9]+\)$/.test(filteredBySpace[3])
             || !/LNPY/.test(filteredBySpace[0])
             || !['LOCL', 'INTL', '*'].includes(filteredBySpace[2])
             || !['PERC', 'FLAT', 'FLAT_PERC'].includes(filteredBySpace[6])

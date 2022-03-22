@@ -1,28 +1,30 @@
 const Fee = require('../models/fee');
 const parseFeeConfig = require('./parse_fee_configuration');
 
-module.exports = async (amount, currencyCountry, customer, paymentEntity) => {
-    try {
-        let query = {};
+const roundToTwo = (num) => {
+    return +(Math.round(num + "e+2")  + "e-2");
+}
 
-        if(currencyCountry === paymentEntity.Country === 'NGN') {
-          query.locale = {$in : ['LOCL', '*']}
+module.exports = async (currency, amount, currencyCountry, customer, paymentEntity) => {
+    try {
+        if (currency !== 'NGN') {
+            throw new Error(`No fee configuration for ${currency} transactions.`)
         }
 
-        if(currencyCountry !== paymentEntity.Country) {
+        let query = {};
+
+        if(currencyCountry === 'NG' && paymentEntity.Country === 'NG') {
+          query.locale = {$in : ['LOCL', '*']}
+        } else {
           query.locale = {$in : ['INTL', '*']}
         }
 
-        if (['CREDIT-CARD', 'DEBIT-CARD'].includes(paymentEntity.Type)) {
-          query.entityProperty = {$in : [paymentEntity.Brand, '*']}
-        } else {
-          query.entityProperty = {$in : [paymentEntity.ID, paymentEntity.Issuer, paymentEntity.Brand, paymentEntity.Number, paymentEntity.SixID, '*']}
-        }
+        query.entityProperty = {$in : [paymentEntity.ID, paymentEntity.Issuer, paymentEntity.Brand, paymentEntity.Number, paymentEntity.SixID, '*']}
 
-        let feeConfig = await Fee.findOne(query);
+        let feeConfig = await Fee.find(query);
 
         if(!feeConfig) {
-            throw new Error("fee config doesn't match");
+            throw new Error("No fee configuration for this transactions.");
         }
 
         let appliedFeeConfig;
@@ -30,8 +32,10 @@ module.exports = async (amount, currencyCountry, customer, paymentEntity) => {
         if(feeConfig.length > 1) { 
             feeConfig = feeConfig.map((config) => {
                 config.specCount = [config.locale, config.entityProperty, config.entity].filter(x => x === '*').length;
-            }).sort((a, b) => a.specCount - b.specCount);
 
+                return config;  
+            }).sort((a, b) => a.specCount - b.specCount);
+            
             appliedFeeConfig = feeConfig[0];
         } else {
            appliedFeeConfig = feeConfig;
@@ -41,15 +45,15 @@ module.exports = async (amount, currencyCountry, customer, paymentEntity) => {
 
         if (customer.BearsFee) {
             if (appliedFeeConfig.type === 'PERC') {
-             appliedFeeValue = Number((appliedFeeConfig.value.percentageValue/100).toFixed(2)) * amount
+             appliedFeeValue = roundToTwo((appliedFeeConfig.value.percentageValue * amount)/100)
             }
              if (appliedFeeConfig.type === 'FLAT') {
              appliedFeeValue = appliedFeeConfig.value.flatValue
             } 
             if (appliedFeeConfig.type === 'FLAT_PERC') {
-             appliedFeeValue = appliedFeeConfig.value.flatValue + (Number((appliedFeeConfig.value.percentageValue/100).toFixed(2)) * amount)
+             appliedFeeValue = appliedFeeConfig.value.flatValue + roundToTwo((appliedFeeConfig.value.percentageValue * amount)/100)
             } else {
-             appliedFeeValue = appliedFeeConfig.value.flatValue + (Number((appliedFeeConfig.value.percentageValue/100).toFixed(2)) * amount)
+             appliedFeeValue = appliedFeeConfig.value.flatValue + roundToTwo((appliedFeeConfig.value.percentageValue * amount)/100)
             }
 
         } else {
