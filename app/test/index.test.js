@@ -1,13 +1,13 @@
 const request = require("supertest");
 const app = require("../../app");
-const { appName } = require("../config");
+const { appName, dbUrlTest } = require("../config");
 const mongoose = require("mongoose");
 const Fee = require("../models/fee");
 
 let server;
 
 beforeAll( (done) => {
-  mongoose.connect('mongodb://localhost:27017/lan-test');
+  mongoose.connect(dbUrlTest);
   server = app.listen(4000, () => {
     global.agent = request.agent(server);
     done();
