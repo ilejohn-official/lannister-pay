@@ -67,22 +67,29 @@ async function getAppliedFee(amount: number, customer, appliedFeeConfig: ConfigE
     }
 }
 
+async function buildQuery(currencyCountry : string, paymentEntity) : Promise<Query> {
+    let query = {} as Query; 
+
+     if(currencyCountry === 'NG' && paymentEntity.Country === 'NG') {
+        query.locale = {$in : ['LOCL', '*']}
+      } else {
+        query.locale = {$in : ['INTL', '*']}
+      }
+  
+      query.entityProperty = {$in : [paymentEntity.ID, paymentEntity.Issuer, paymentEntity.Brand, paymentEntity.Number, paymentEntity.SixID, '*']}
+
+      return query
+  
+}
+
 export = async (currency: string, amount: number, currencyCountry: string, customer, paymentEntity): Promise<Response> => {
     if (currency !== 'NGN') {
       throw new Error(`No fee configuration for ${currency} transactions.`)
     }
 
-    let query = {} as Query;
+    const query = await buildQuery(currencyCountry, paymentEntity);
 
-    if(currencyCountry === 'NG' && paymentEntity.Country === 'NG') {
-      query.locale = {$in : ['LOCL', '*']}
-    } else {
-      query.locale = {$in : ['INTL', '*']}
-    }
-
-    query.entityProperty = {$in : [paymentEntity.ID, paymentEntity.Issuer, paymentEntity.Brand, paymentEntity.Number, paymentEntity.SixID, '*']}
-
-    let feeConfig: ConfigExt[] = await Fee.find(query);
+    const feeConfig: ConfigExt[] = await Fee.find(query);
 
     if(!feeConfig) {
      throw new Error("No fee configuration for this transaction.");
