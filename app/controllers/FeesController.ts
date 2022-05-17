@@ -27,7 +27,7 @@ module.exports = {
     try {
       const data = await computeTransactionService(currency, amount, currencyCountry, customer, paymentEntity);
 
-     response.status(200).json(data);
+      response.status(200).json(data);
        
     } catch (error) {
       response.status(400).json({Error: error.message});

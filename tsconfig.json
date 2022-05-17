@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "outDir": "dist",
+        "allowJs": true,
+        "module": "CommonJs",
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "app/**/*",
+        "index.ts"
+    ]
+}

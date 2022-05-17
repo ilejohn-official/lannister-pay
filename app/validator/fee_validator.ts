@@ -1,7 +1,7 @@
 const Fee = require("../models/fee");
 
 module.exports = async (request, response, next) => {
-    const feeConfig = request.body.FeeConfigurationSpec;
+    const feeConfig: string = request.body.FeeConfigurationSpec;
 
     if (!feeConfig) {
       return response.status(422).json({status: 'error', message: 'Fee configuration specs required'});
@@ -33,11 +33,11 @@ module.exports = async (request, response, next) => {
             || !['PERC', 'FLAT', 'FLAT_PERC'].includes(filteredBySpace[6])
             || (filteredBySpace[6] === 'FLAT_PERC' && (
                 !/:/.test(filteredBySpace[7]) 
-                || isNaN(filteredBySpace[7].split(":").filter(config => config)[0]) 
-                || isNaN(filteredBySpace[7].split(":").filter(config => config)[1])
+                || isNaN(parseInt(filteredBySpace[7].split(":").filter(config => config)[0])) 
+                || isNaN(parseInt(filteredBySpace[7].split(":").filter(config => config)[1]))
                  )
                 )
-            || (['PERC', 'FLAT'].includes(filteredBySpace[6]) && isNaN(filteredBySpace[7]))
+            || (['PERC', 'FLAT'].includes(filteredBySpace[6]) && isNaN(parseInt(filteredBySpace[7])))
             ) {
            return response.status(422)
             .json({status: 'error', message: 'Invalid Fee configuration specs. Must contain fee specifications in right format'});

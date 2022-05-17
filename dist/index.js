@@ -1,19 +1,17 @@
 const mongoose = require("mongoose");
 const { port, dbUrl } = require("./app/config");
 const app = require("./app");
-
 mongoose
-  .connect(dbUrl, {
+    .connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-  })
-  .then(function (d) {
+})
+    .then(function () {
     console.log("DB connected");
-  })
-  .catch(function (err) {
+})
+    .catch(function (err) {
     console.log(err);
-  });
-
+});
 app.listen(port, () => {
-  console.log(`***** \nServer running on port ${port}\n*****`);
+    console.log(`***** \nServer running on port ${port}\n*****`);
 });

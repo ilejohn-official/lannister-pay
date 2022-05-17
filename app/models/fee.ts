@@ -18,4 +18,4 @@ let feeSchema = new Schema({
   collection: 'fees'
 });
 
-module.exports = mongoose.model("Fee", feeSchema);
+export = mongoose.model("Fee", feeSchema);
