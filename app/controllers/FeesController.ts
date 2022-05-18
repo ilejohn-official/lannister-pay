@@ -13,6 +13,7 @@ module.exports = {
      });
        
     } catch (error) {
+      console.log(error.message, error)
       response.status(400).json({Error: error.message});
     }
   },
@@ -30,6 +31,7 @@ module.exports = {
       response.status(200).json(data);
        
     } catch (error) {
+      console.log(error.message, error)
       response.status(400).json({Error: error.message});
     }
   },

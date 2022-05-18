@@ -4,7 +4,7 @@ const { appName, dbUrlTest } = require("../config");
 const mongoose = require("mongoose");
 const Fee = require("../models/fee");
 
-let server;
+let server: typeof app;
 
 beforeAll( (done) => {
   mongoose.connect(dbUrlTest);
@@ -14,12 +14,20 @@ beforeAll( (done) => {
   });
 });
 
+/**
+ * Do nothing for the specified milliseconds
+ * @param ms 
+ */
+async function sleep(ms:number = 500): Promise<void> {
+  setTimeout(() => {}, ms);
+}
+
 afterAll(async () => {
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
+    await sleep();
     await server.close();
     await Fee.deleteMany();
     await mongoose.disconnect();
-});
+}, 500);
 
 describe("Test root and undefined paths", () => {
     test(`Should return the root path text: ${appName} is Online!`, async () => {

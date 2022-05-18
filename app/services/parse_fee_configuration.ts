@@ -1,4 +1,4 @@
-module.exports = (feeConfig) => {
+module.exports = (feeConfig: string) => {
     let filteredByLineBreak = feeConfig.split(/\r?\n/).filter(config => config);
 
     return filteredByLineBreak.map(configLine => {
