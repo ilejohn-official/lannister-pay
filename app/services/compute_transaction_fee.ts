@@ -39,12 +39,21 @@ const roundToTwo = (num : number) => {
     return +(Math.round(Number(num + "e+2"))  + "e-2");
 }
 
-async function getFeeConfig(feeConfig : ConfigExt[]): Promise<ConfigExt> {
-  if(feeConfig.length > 1) { 
-    return feeConfig.map((config) => {
-        config.specCount = [config.locale, config.entityProperty, config.entity].filter(x => x === '*').length;
-        return config;  
-    }).sort((a, b) => a.specCount - b.specCount)[0];   
+function getFeeConfig(feeConfig : ConfigExt[]): ConfigExt {
+  if(feeConfig.length > 1) {
+
+    let resortedConfig = feeConfig.map((config) => {
+        const specCount:ConfigExt["specCount"] = [
+          config.locale, config.entityProperty, config.entity
+        ].filter(x => x === '*').length;
+
+        config["specCount"] = specCount
+
+        return config; 
+
+    }).sort((a, b) => a.specCount - b.specCount); 
+
+    return resortedConfig[0]
   }
 
   return feeConfig[0];
@@ -89,20 +98,22 @@ export = async (currency: string, amount: number, currencyCountry: string, custo
 
     const query = await buildQuery(currencyCountry, paymentEntity);
 
-    const feeConfig: ConfigExt[] = await Fee.find(query);
+    let feeConfig: ConfigExt[] = await Fee.find(query);
 
     if(!feeConfig) {
      throw new Error("No fee configuration for this transaction.");
     }
 
-    const appliedFeeConfig = await getFeeConfig(feeConfig);
+    const appliedFeeConfig = getFeeConfig(feeConfig);
 
     const appliedFeeValue = await getAppliedFee(amount, customer, appliedFeeConfig);
 
-    return {
-       AppliedFeeID: appliedFeeConfig.feeId,
-       AppliedFeeValue: appliedFeeValue,
-       ChargeAmount: amount + appliedFeeValue,
-       SettlementAmount: amount
-    } as Response
+    return new Promise((resolve) => {
+      return resolve({
+        AppliedFeeID: appliedFeeConfig.feeId,
+        AppliedFeeValue: appliedFeeValue,
+        ChargeAmount: amount + appliedFeeValue,
+        SettlementAmount: amount
+      } as Response)
+    });
 }
